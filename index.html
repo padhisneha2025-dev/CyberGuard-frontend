@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuard Core | SOC Command Center</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            /* Cybersecurity grid background */
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #e5e7eb;
+            min-height: 100vh;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Neon Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.6); }
+        
+        /* High-End Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 uppercase">
+                CyberGuard Core
+            </h1>
+            <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Autonomous Threat Triage Engine</p>
+        </div>
+        <div class="glass-panel px-4 py-2 rounded-full border border-cyan-500/30 flex items-center space-x-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+            </span>
+            <span class="text-xs text-cyan-400 font-mono tracking-widest uppercase font-bold">API Connected</span>
+        </div>
+    </header>
+
+    <!-- Real-Time Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="glass-panel rounded-xl p-5 border-t-2 border-t-cyan-500/50 relative overflow-hidden group hover:bg-white/5 transition-all">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+                <svg class="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2">Total Active Threats</p>
+            <p class="text-4xl font-mono font-bold text-cyan-400" id="metric-total">0</p>
+        </div>
+        
+        <div class="glass-panel rounded-xl p-5 border-t-2 border-t-red-500/50 relative overflow-hidden group hover:bg-white/5 transition-all">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity flex">
+                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2">Critical Severity</p>
+            <p class="text-4xl font-mono font-bold text-red-500 animate-pulse" id="metric-critical">0</p>
+        </div>
+
+        <div class="glass-panel rounded-xl p-5 border-t-2 border-t-gray-500/50">
+            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2">Last Sync Time</p>
+            <p class="text-2xl font-mono font-bold text-gray-300 mt-2" id="metric-time">--:--:--</p>
+            <p class="text-[10px] text-gray-500 font-mono mt-1">Polling interval: 3000ms</p>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[550px]">
+        
+        <!-- Left Column: Risk Distribution -->
+        <div class="glass-panel rounded-xl p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xs text-cyan-400 uppercase tracking-widest font-bold">Threat Matrix</h2>
+                <span class="text-xs bg-white/10 px-2 py-1 rounded font-mono text-gray-300">LIVE</span>
+            </div>
+            
+            <div class="flex-grow flex items-center justify-center relative min-h-[300px]">
+                <canvas id="threatChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Right Column: Recent Alerts Feed -->
+        <div class="lg:col-span-2 glass-panel rounded-xl p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h2 class="text-xs text-cyan-400 uppercase tracking-widest font-bold">Real-Time Alert Feed</h2>
+                <span class="text-xs text-gray-500 font-mono" id="alert-status">Waiting for stream...</span>
+            </div>
+            
+            <!-- Feed Container -->
+            <div id="alerts-container" class="flex-grow overflow-y-auto pr-3 space-y-4">
+                <!-- Alerts injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let threatChart;
+        // Keep track of alerts the user dismisses during the demo
+        let dismissedAlerts = new Set(); 
+
+        function initChart() {
+            const ctx = document.getElementById('threatChart').getContext('2d');
+            Chart.defaults.color = '#9ca3af';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            threatChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.9)', 
+                            'rgba(245, 158, 11, 0.9)', 
+                            'rgba(6, 182, 212, 0.9)'  
+                        ],
+                        borderColor: [
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(6, 182, 212, 1)'
+                        ],
+                        borderWidth: 2,
+                        cutout: '75%',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#e5e7eb', padding: 20, usePointStyle: true } },
+                        tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', titleFont: { family: "'JetBrains Mono'" }, padding: 12, borderColor: 'rgba(6,182,212,0.5)', borderWidth: 1 }
+                    }
+                }
+            });
+        }
+
+        async function fetchAlerts() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/alerts'); 
+                const rawAlerts = await response.json();
+                
+                // Filter out alerts the user has manually dismissed in the UI
+                const alerts = rawAlerts.filter(alert => !dismissedAlerts.has(alert.timestamp));
+
+                const container = document.getElementById('alerts-container');
+                const now = new Date();
+                
+                // Update Top Metrics with REAL data
+                let counts = { Critical: 0, Medium: 0, Low: 0 };
+                alerts.forEach(a => {
+                    let lvl = a.risk_level || 'Low';
+                    if (counts[lvl] !== undefined) counts[lvl]++;
+                });
+
+                document.getElementById('metric-total').innerText = alerts.length;
+                document.getElementById('metric-critical').innerText = counts.Critical;
+                document.getElementById('metric-time').innerText = now.toLocaleTimeString();
+                document.getElementById('alert-status').innerText = 'Synced';
+
+                // Empty State Handler
+                if (alerts.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-center opacity-80 mt-10">
+                            <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4 border border-emerald-500/30">
+                                <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <p class="text-emerald-400 text-sm font-bold tracking-widest uppercase">All Systems Nominal</p>
+                            <p class="text-gray-500 text-xs font-mono mt-2">Zero active threats detected in local database.</p>
+                        </div>
+                    `;
+                    updateChart([0,0,0]);
+                    return;
+                }
+
+                let htmlStr = '';
+
+                // Build Alert Cards
+                alerts.forEach(alert => {
+                    const level = alert.risk_level || 'Low';
+
+                    let badgeColor = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
+                    let glow = 'hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] hover:border-cyan-500/30';
+                    
+                    if (level === 'Critical') {
+                        badgeColor = 'bg-red-500/10 text-red-500 border-red-500/30';
+                        glow = 'border-l-4 border-l-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:border-red-500/30';
+                    } else if (level === 'Medium') {
+                        badgeColor = 'bg-amber-500/10 text-amber-500 border-amber-500/30';
+                        glow = 'border-l-4 border-l-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:border-amber-500/30';
+                    }
+
+                    // Format SHAP evidence
+                    const evidenceHtml = Array.isArray(alert.evidence) 
+                        ? alert.evidence.map(e => `<p class="mt-2 text-sm text-gray-300 leading-relaxed">${e}</p>`).join('')
+                        : `<p class="mt-2 text-sm text-gray-300 leading-relaxed">${alert.evidence}</p>`;
+
+                    htmlStr += `
+                        <div class="glass-panel rounded-lg p-5 border border-white/5 transition-all duration-300 ${glow}">
+                            <div class="flex justify-between items-start mb-4 border-b border-white/5 pb-3">
+                                <div>
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${badgeColor} mb-2 shadow-sm">
+                                        ${level} SEVERITY
+                                    </span>
+                                    <h3 class="text-base font-bold text-gray-100 tracking-wide">${alert.threat_category}</h3>
+                                </div>
+                                <span class="text-xs text-gray-500 font-mono bg-black/40 px-2 py-1 rounded border border-white/5">${new Date(alert.timestamp).toLocaleTimeString()}</span>
+                            </div>
+                            
+                            <div class="bg-black/50 rounded-md p-4 mb-4 border border-white/5 shadow-inner">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                    <p class="text-[11px] text-purple-400 font-mono uppercase tracking-widest font-bold">Glass-Box Explainability</p>
+                                </div>
+                                ${evidenceHtml}
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button onclick="dismissAlert('${alert.timestamp}')" class="bg-black/40 hover:bg-emerald-500/20 text-gray-400 hover:text-emerald-400 border border-white/10 hover:border-emerald-500/50 px-4 py-1.5 rounded text-[11px] font-bold uppercase tracking-widest transition-all duration-300">
+                                    Neutralize Threat
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = htmlStr;
+                updateChart([counts.Critical, counts.Medium, counts.Low]);
+
+            } catch (error) {
+                console.error("API Error:", error);
+                document.getElementById('alert-status').innerText = 'Connection Lost';
+            }
+        }
+
+        function updateChart(dataArray) {
+            if (threatChart) {
+                threatChart.data.datasets[0].data = dataArray;
+                threatChart.update();
+            }
+        }
+
+        // Handle client-side alert dismissal for the demo
+        function dismissAlert(timestamp) {
+            dismissedAlerts.add(timestamp);
+            fetchAlerts(); // Force immediate UI refresh
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initChart();
+            fetchAlerts();
+            setInterval(fetchAlerts, 3000); 
+        };
+    </script>
+</body>
+</html>
