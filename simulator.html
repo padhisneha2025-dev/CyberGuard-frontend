@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuard Threat Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen p-8 font-sans antialiased">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl font-bold tracking-widest text-purple-400 uppercase">Threat Injection Terminal</h1>
+            <p class="text-slate-400 text-sm tracking-wide mt-2">Live Environment Testing Simulator</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- CARD 1: SCENARIOS 1 & 5 (Phishing & URL Manipulation) -->
+            <div class="p-6 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-sm font-bold tracking-wider uppercase text-purple-400">
+                        Scenarios 1 & 5: Phishing & Links
+                    </h2>
+                    <span class="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300">Live Simulator</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 mb-1">SENDER EMAIL</label>
+                            <input type="email" id="phishing_sender" value="it-helpdesk@company-portal-update.com" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 mb-1">REPLY-TO (HIDDEN)</label>
+                            <input type="email" id="phishing_replyto" value="admin-update11@freemail.com" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- BLANK FIELD FOR LIVE DEMO -->
+                        <label class="block text-xs font-mono text-slate-400 mb-1">SUBJECT</label>
+                        <input type="text" id="phishing_subject" placeholder="e.g., Mandatory: Update your credentials" 
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <div>
+                        <!-- BLANK FIELD FOR LIVE DEMO -->
+                        <label class="block text-xs font-mono text-slate-400 mb-1">EMAIL BODY (AI TEXT ANALYSIS)</label>
+                        <textarea id="phishing_body" rows="4" placeholder="Type or paste the suspicious email body here..."
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500 leading-relaxed"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1">EMBEDDED URL</label>
+                        <input type="text" id="phishing_url" value="http://employee-portal-secure-login.net" 
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <button id="phish_submit_btn" onclick="sendPhishingThreat()" 
+                        class="w-full mt-2 py-3 bg-purple-600 hover:bg-purple-700 font-bold text-xs uppercase tracking-wider rounded transition">
+                        Inject Phishing Payload
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARD 2: SCENARIO 4 (Credential Theft / ATO) -->
+            <div class="p-6 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-sm font-bold tracking-wider uppercase text-purple-400">
+                        Scenario 4: Account Takeover (ATO)
+                    </h2>
+                    <span class="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300">Live Simulator</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <!-- BLANK FIELD FOR LIVE DEMO -->
+                        <label class="block text-xs font-mono text-slate-400 mb-1">TARGET USERNAME / EMAIL</label>
+                        <input type="text" id="ato_user" placeholder="admin_finance@enterprise.local" 
+                            class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 mb-1">SOURCE IP ADDRESS</label>
+                            <input type="text" id="ato_ip" value="185.220.101.5" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 mb-1">GEO-LOCATION CODE</label>
+                            <input type="text" id="ato_country" value="RU" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <!-- BLANK FIELD FOR LIVE DEMO -->
+                            <label class="block text-xs font-mono text-slate-400 mb-1">FAILED LOGIN ATTEMPTS</label>
+                            <input type="number" id="ato_attempts" placeholder="e.g., 15" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 mb-1">DEVICE SIGNATURE / AGENT</label>
+                            <input type="text" id="ato_device" value="Unknown (Tor Exit Node)" 
+                                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div class="pt-10">
+                        <button id="ato_submit_btn" onclick="sendAtoThreat()" 
+                            class="w-full py-3 bg-purple-600 hover:bg-purple-700 font-bold text-xs uppercase tracking-wider rounded transition">
+                            Inject Login Anomaly
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // UPDATE THIS WITH YOUR LIVE NGROK URL BEFORE TESTING
+        const BASE_API_URL = 'https://shaft-strung-reexamine.ngrok-free.dev'; 
+
+        async function sendPhishingThreat() {
+            const btn = document.getElementById('phish_submit_btn');
+            btn.textContent = 'INJECTING...';
+            btn.disabled = true;
+
+            const payload = {
+                sender_email: document.getElementById('phishing_sender').value,
+                reply_to: document.getElementById('phishing_replyto').value,
+                subject: document.getElementById('phishing_subject').value,
+                body: document.getElementById('phishing_body').value,
+                urls: [document.getElementById('phishing_url').value] 
+            };
+
+            try {
+                const response = await fetch(`${BASE_API_URL}/api/analyze/phishing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                btn.textContent = 'PAYLOAD DELIVERED';
+                btn.classList.replace('bg-purple-600', 'bg-emerald-600');
+            } catch (error) {
+                btn.textContent = 'CONNECTION FAILED';
+                btn.classList.replace('bg-purple-600', 'bg-red-600');
+                console.error("Phishing injection error:", error);
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = 'Inject Phishing Payload';
+                    btn.disabled = false;
+                    btn.className = 'w-full mt-2 py-3 bg-purple-600 hover:bg-purple-700 font-bold text-xs uppercase tracking-wider rounded transition';
+                }, 2500);
+            }
+        }
+
+        async function sendAtoThreat() {
+            const btn = document.getElementById('ato_submit_btn');
+            btn.textContent = 'INJECTING...';
+            btn.disabled = true;
+
+            const payload = {
+                username: document.getElementById('ato_user').value,
+                timestamp: new Date().toISOString(),
+                ip_address: document.getElementById('ato_ip').value,
+                location: document.getElementById('ato_country').value,
+                failed_attempt_count: parseInt(document.getElementById('ato_attempts').value, 10),
+                login_status: "Failed"
+            };
+
+            try {
+                const response = await fetch(`${BASE_API_URL}/api/analyze/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                btn.textContent = 'PAYLOAD DELIVERED';
+                btn.classList.replace('bg-purple-600', 'bg-emerald-600');
+            } catch (error) {
+                btn.textContent = 'CONNECTION FAILED';
+                btn.classList.replace('bg-purple-600', 'bg-red-600');
+                console.error("ATO injection error:", error);
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = 'Inject Login Anomaly';
+                    btn.disabled = false;
+                    btn.className = 'w-full py-3 bg-purple-600 hover:bg-purple-700 font-bold text-xs uppercase tracking-wider rounded transition';
+                }, 2500);
+            }
+        }
+    </script>
+</body>
+</html>
